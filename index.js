@@ -22,6 +22,24 @@ class CLI {
     this.promptUser()
     .then(input => {
       if(input.result === 'quit') return;
+      switch(input.result) {
+        case 'View all Departments':
+          return this.viewDepartments();
+        case 'Add a Department':
+          return this.addDepartment();
+        case 'View all Roles':
+          return this.viewRoles();
+        case 'Add a Role':
+          return this.addRole();
+        case 'View all Employees': 
+          return this.viewEmployees();
+        case 'Add an Employee': 
+          return this.addEmplyoee();
+        case 'Update an Employee': 
+          return this.updateEmployee();
+        default :
+        return;
+      }
     })
     .catch((err) => {
       console.log(err);
