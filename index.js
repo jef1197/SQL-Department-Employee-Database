@@ -21,7 +21,7 @@ class CLI {
   run() {
     this.promptUser()
     .then(input => {
-      if(input.result === 'quit') return;
+      if(input.result === 'Quit') return;
       switch(input.result) {
         case 'View all Departments':
           return this.viewDepartments();
@@ -178,8 +178,8 @@ class CLI {
         type: 'list',
         name: 'result',
         message: 'What would you like to do:',
-        choices: ['view all departments', 'view all roles', 'view all employees',
-      'add a department', 'add a role', 'add an employee', 'update an employee role', 'quit'],
+        choices: ['View all Departments', 'View all Roles', 'View all Employees',
+      'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee', 'Quit'],
       },
 
     ])
