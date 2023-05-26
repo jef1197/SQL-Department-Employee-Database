@@ -52,15 +52,123 @@ class CLI {
     this.run();
   }
 
+  addDepartment() {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'name',
+        message: 'Department Name: ',
+      },
+    ])
+    .then(input => {
+      console.log(input)
+    })
+    .then( () => {
+      console.log('added department to db')
+      this.run();
+    })
+  }
 
   viewRoles() {
     console.log('role')
     this.run();
   }
 
+  addRole() {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'role',
+        message: 'Role Name: ',
+      },
+      {
+        type: 'number',
+        name: 'salary',
+        message: 'Salary: ',
+      },
+      {
+        type: 'list',
+        name: 'department',
+        message: 'Choose department: ',
+        choices: testarray,
+      },
+    ])
+    .then(input => {
+      console.log(input)
+    })
+    .then( () => {
+      console.log('added role to db')
+      this.run();
+    })
+  }
+
   viewEmployees() {
     console.log('employee')
     this.run();
+  }
+
+  addEmplyoee() {
+    inquirer.prompt([
+      {
+        type: 'input',
+        name: 'first_name',
+        message: 'First Name: ',
+      },
+      {
+        type: 'input',
+        name: 'last_name',
+        message: 'Last Name: ',
+      },
+      {
+        type: 'list',
+        name: 'role',
+        message: 'Choose Role: ',
+        choices: testarray,
+      },
+      {
+        type: 'list',
+        name: 'manager',
+        message: 'Choose Manager: ',
+        choices: testarray,
+      },
+    ])
+    .then(input => {
+      console.log(input)
+    })
+    .then( () => {
+      console.log('added employee to db')
+      this.run();
+    })
+  }
+
+  updateEmployee() {
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'employee',
+        message: 'Choose Employee: ',
+        choices: testarray,
+      },
+      {
+        type: 'list',
+        name: 'role',
+        message: 'Choose Role: ',
+        choices: testarray,      
+      },
+      {
+        type: 'list',
+        name: 'manager',
+        message: 'Choose Manager: ',
+        choices: testarray,
+      },
+    ])
+    .then(input => {
+      console.log(input)
+    })
+    .then( () => {
+      console.log('Updated employee to db')
+      this.run();
+    })
   }
 
   promptUser() {
