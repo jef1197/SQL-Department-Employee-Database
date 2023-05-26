@@ -47,6 +47,21 @@ class CLI {
     })
   }
 
+  viewDepartments() {
+    console.log('department')
+    this.run();
+  }
+
+
+  viewRoles() {
+    console.log('role')
+    this.run();
+  }
+
+  viewEmployees() {
+    console.log('employee')
+    this.run();
+  }
 
   promptUser() {
     return inquirer.
