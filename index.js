@@ -3,15 +3,15 @@ const inquirer = require('inquirer');
 const { test } = require('node:test');
 
 // Connect to database
-// const db = mysql.createConnection(
-//   {
-//     host: 'localhost',
-//     user: 'root',
-//     password: '101894JefO!',
-//     database: 'department_db'
-//   },
-//   console.log(`Connected to the department_db database.`)
-// );
+const db = mysql.createConnection(
+  {
+    host: 'localhost',
+    user: 'root',
+    password: '101894JefO!',
+    database: 'department_db'
+  },
+  console.log(`Connected to the department_db database.`)
+);
 
 let testarray = ['test1', 'test2', 'test3'];
 class CLI {
@@ -49,6 +49,17 @@ class CLI {
 
   viewDepartments() {
     console.log('department')
+    const sql = `SELECT id, department_name AS department FROM department`;
+    db.query(sql, (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: rows
+      });
+    });
     this.run();
   }
 
@@ -62,6 +73,19 @@ class CLI {
     ])
     .then(input => {
       console.log(input)
+      const sql = `INSERT INTO department (department_name)
+    VALUES (?)`;
+    const params = input.name;
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: result
+      });
+    });
     })
     .then( () => {
       console.log('added department to db')
@@ -71,6 +95,17 @@ class CLI {
 
   viewRoles() {
     console.log('role')
+    const sql = `SELECT id, title, salary, department_id FROM role`;
+    db.query(sql, (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: rows
+      });
+    });
     this.run();
   }
 
@@ -103,7 +138,18 @@ class CLI {
   }
 
   viewEmployees() {
-    console.log('employee')
+    console.log('employee');
+    const sql = `SELECT id, first_name, last_name, role_id, manager_id FROM employee`;
+    db.query(sql, (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: rows
+      });
+    });
     this.run();
   }
 
