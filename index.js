@@ -1,6 +1,6 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const { test } = require('node:test');
+const cTable = require('console.table');
 
 // Connect to database
 const db = mysql.createConnection(
@@ -243,7 +243,7 @@ class CLI {
 
   // Views all employess within the employee table sorted by id
   viewEmployees() {
-    const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
+    const sql = `SELECT employee.id, first_name, last_name, role.title, role.salary, department.department_name as department, manager_id from employee
     INNER JOIN role on employee.role_id = role.id
     INNER JOIN department ON role.department_id = department.id ORDER BY id`;
     db.query(sql, (err, rows) => {
@@ -278,7 +278,7 @@ class CLI {
         },
       ])
       .then (input => {
-        const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
+        const sql = `SELECT employee.id, first_name, last_name, role.title, role.salary, department.department_name as department, manager_id from employee
         INNER JOIN role on employee.role_id = role.id
         INNER JOIN department ON role.department_id = department.id
         where manager_id = ?;`;
@@ -317,7 +317,7 @@ class CLI {
         },
       ])
       .then (input => {
-        const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
+        const sql = `SELECT employee.id, first_name, last_name, role.title, role.salary, department.department_name as department, manager_id from employee
         INNER JOIN role on employee.role_id = role.id
         INNER JOIN department ON role.department_id = department.id
         where department_id = ?;`;
