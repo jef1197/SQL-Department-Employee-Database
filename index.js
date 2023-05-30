@@ -56,7 +56,7 @@ class CLI {
         console.log({ error: err.message });
         return;
       }
-      console.log(rows)
+      console.table(rows)
       this.run();
     });
   }
@@ -96,7 +96,7 @@ class CLI {
         console.log({ error: err.message });
         return;
       }
-      console.log(rows)
+      console.table(rows)
       this.run();
     });
   }
@@ -161,7 +161,7 @@ class CLI {
         console.log({ error: err.message });
         return;
       }
-      console.log(rows);
+      console.table(rows);
       this.run();
     });
   }
