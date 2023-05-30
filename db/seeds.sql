@@ -1,3 +1,4 @@
+-- Insert data into tables
 INSERT INTO department (department_name)
 VALUES  ("Sales"),
         ("Engineering"),

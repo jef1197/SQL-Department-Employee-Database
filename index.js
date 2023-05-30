@@ -17,9 +17,11 @@ class CLI {
   constructor() {
   }
 
+// Start App
   run() {
     this.promptUser()
     .then(input => {
+      // Runs the function based on what the user has picked
       if(input.result === 'Quit') return;
       switch(input.result) {
         case 'View all Departments':
@@ -46,6 +48,7 @@ class CLI {
     })
   }
 
+  // Views all Departments within the department table sorted by thier id
   viewDepartments() {
     const sql = `SELECT id, department_name from department ORDER BY id`;
     db.query(sql, (err, rows) => {
@@ -58,6 +61,7 @@ class CLI {
     });
   }
 
+  // adds a department to the db
   addDepartment() {
     inquirer.prompt([
       {
@@ -83,6 +87,7 @@ class CLI {
     })
   }
 
+  // Viwes roles,salary, and which department it belongs too within the role table sorted by thier ids
   viewRoles() {
     const sql = `SELECT role.id, title, salary, department.department_name as department from role
     INNER JOIN department ON role.department_id = department.id ORDER BY id`;
@@ -96,9 +101,11 @@ class CLI {
     });
   }
 
+  // Adds a role to db
   addRole() {
     const sql = `SELECT department_name as department from department ORDER BY id`;
     let departmentArray = []
+    // Creates an array of departments found in the department table
     db.query(sql, (err, rows) => {
       if (err) {
         console.log({ error: err.message });
@@ -144,6 +151,7 @@ class CLI {
     })
   }
 
+  // Views all employess within the employee table sorted by id
   viewEmployees() {
     const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
     INNER JOIN role on employee.role_id = role.id
@@ -158,11 +166,13 @@ class CLI {
     });
   }
 
+  // Adds Employee to the db
   addEmplyoee() {
     const sql = `SELECT title from role ORDER BY id`;
     const sql2 = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`
     let roleArray = [];
     let managerArray = [];
+    // Creates a array of roles found in the role table
     db.query(sql, (err, rows) => {
       if (err) {
         console.log({ error: err.message });
@@ -172,6 +182,7 @@ class CLI {
         roleArray.push(rows[i].title)
       }
     });
+    // Creates an array of employees found in the employee table
     db.query(sql2, (err, rows) => {
       if (err) {
         console.log({ error: err.message });
@@ -231,6 +242,7 @@ class CLI {
     })
   }
 
+  // Updates the role and manager of a specified employee within the employee table
   updateEmployee() {
     const sql = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`;
     const sql2 = `SELECT title from role ORDER BY id`;
@@ -238,6 +250,7 @@ class CLI {
     let employeeArray = []
     let roleArray = [];
     let managerArray = [];
+    // Creates an array of employees found in the employee table
     db.query(sql, (err, rows) => {
       if (err) {
         console.log({ error: err.message });
@@ -247,6 +260,7 @@ class CLI {
         employeeArray.push(rows[i].name)
       }
     })
+    // Creates an array of role found in the role table
     db.query(sql2, (err, rows) => {
       if (err) {
         console.log({ error: err.message });
@@ -256,6 +270,7 @@ class CLI {
         roleArray.push(rows[i].title)
       }
     });
+    // Creates an array of employees found in the employee table
     db.query(sql3, (err, rows) => {
       if (err) {
         console.log({ error: err.message });
@@ -312,6 +327,7 @@ class CLI {
     });
   }
 
+  // Promts Users what they would like to do within the databse
   promptUser() {
     return inquirer.
     prompt([
