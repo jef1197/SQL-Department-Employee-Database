@@ -30,6 +30,10 @@ class CLI {
           return this.addDepartment();
         case 'View all Roles':
           return this.viewRoles();
+        case 'View Employees by Manager':
+          return this.viewEmployeesbyManager();
+        case 'View Employees by Department':
+          return this.viewEmployeesbyDepartment();
         case 'Add a Role':
           return this.addRole();
         case 'View all Employees': 
@@ -38,6 +42,14 @@ class CLI {
           return this.addEmplyoee();
         case 'Update an Employee': 
           return this.updateEmployee();
+        case 'Delete Department': 
+          return this.deleteDepartment();
+        case 'Delete Role': 
+          return this.deleteRole();
+        case 'Delete Employee': 
+          return this.deleteEmployee();
+        case 'View Department Budget': 
+          return this.viewDepartmentBudget();
         default :
         return;
       }
@@ -85,6 +97,45 @@ class CLI {
       console.log('added department to db')
       this.run();
     })
+  }
+
+  // Deletes a department
+  deleteDepartment() {
+    const sql = `SELECT department_name as department from department ORDER BY id`;
+    let departmentArray = []
+    // Creates an array of departments found in the department table
+    db.query(sql, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        departmentArray.push(rows[i].department)
+      }
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'department',
+          message: 'Choose department: ',
+          choices: departmentArray,
+        },
+      ])
+      .then (input => {
+        const sql2 = `DELETE FROM department WHERE id = ?`
+        let d_id = departmentArray.indexOf(input.department) + 1;
+        const params = d_id;
+        db.query(sql2, params, (err, result) => {
+          if (err) {
+            console.log({ error: err.message });
+            return;
+          }
+        });
+      })
+      .then( () => {
+        console.log('deleted department in db')
+        this.run();
+      })
+    });
   }
 
   // Viwes roles,salary, and which department it belongs too within the role table sorted by thier ids
@@ -151,6 +202,45 @@ class CLI {
     })
   }
 
+  // Deletes a role
+  deleteRole() {
+    const sql = `SELECT title from role ORDER BY id`;
+    let roleArray = []
+    // Creates an array of departments found in the department table
+    db.query(sql, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        roleArray.push(rows[i].title)
+      }
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'role',
+          message: 'Choose Role: ',
+          choices: roleArray,
+        },
+      ])
+      .then (input => {
+        const sql2 = `DELETE FROM role WHERE id = ?`
+        let r_id = roleArray.indexOf(input.title) + 1;
+        const params = r_id;
+        db.query(sql2, params, (err, result) => {
+          if (err) {
+            console.log({ error: err.message });
+            return;
+          }
+        });
+      })
+      .then( () => {
+        console.log('deleted role in db')
+        this.run();
+      })
+    });
+  }
+
   // Views all employess within the employee table sorted by id
   viewEmployees() {
     const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
@@ -164,6 +254,85 @@ class CLI {
       console.table(rows);
       this.run();
     });
+  }
+
+  // Views all employess within the employee based on the manager 
+  viewEmployeesbyManager() {
+    const sql2 = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`;
+    let employeeArray = []
+    // Creates an array of employees found in the employee table
+    db.query(sql2, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        employeeArray.push(rows[i].name)
+      }
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'employee',
+          message: 'Choose Manager to view which employees are under him/her: ',
+          choices: employeeArray,
+        },
+      ])
+      .then (input => {
+        const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
+        INNER JOIN role on employee.role_id = role.id
+        INNER JOIN department ON role.department_id = department.id
+        where manager_id = ?;`;
+        let e_id = employeeArray.indexOf(input.employee) + 1;
+        const params = e_id;
+        db.query(sql, params, (err, rows) => {
+          if (err) {
+            console.log({ error: err.message });
+            return;
+          }
+          console.table(rows);
+          this.run();
+        });
+      })
+    })
+  }
+  // Views all employess within the employee based on the manager 
+  viewEmployeesbyDepartment() {
+    const sql2 = `SELECT department_name as department from department ORDER BY id`;
+    let departmentArray = [];
+    // Creates an array of departments found in the department table
+    db.query(sql2, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        departmentArray.push(rows[i].department)
+      }
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'department',
+          message: 'Choose department to view employees: ',
+          choices: departmentArray,
+        },
+      ])
+      .then (input => {
+        const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
+        INNER JOIN role on employee.role_id = role.id
+        INNER JOIN department ON role.department_id = department.id
+        where department_id = ?;`;
+        let d_id = departmentArray.indexOf(input.department) + 1;
+        const params = d_id;
+        db.query(sql, params, (err, rows) => {
+          if (err) {
+            console.log({ error: err.message });
+            return;
+          }
+          console.table(rows);
+          this.run();
+        });
+      })
+    })
   }
 
   // Adds Employee to the db
@@ -247,7 +416,7 @@ class CLI {
     const sql = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`;
     const sql2 = `SELECT title from role ORDER BY id`;
     const sql3 = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`;
-    let employeeArray = []
+    let employeeArray = [];
     let roleArray = [];
     let managerArray = [];
     // Creates an array of employees found in the employee table
@@ -327,6 +496,88 @@ class CLI {
     });
   }
 
+  // Deletes a Employee
+  deleteEmployee() {
+    const sql = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`;
+    let employeeArray = []
+    // Creates an array of departments found in the department table
+    db.query(sql, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        employeeArray.push(rows[i].name)
+      }
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'employee',
+          message: 'Choose Employee: ',
+          choices: employeeArray,
+        },
+      ])
+      .then (input => {
+        const sql2 = `DELETE FROM employee WHERE id = ?`
+        let e_id = employeeArray.indexOf(input.employee) + 1;
+        const params = e_id;
+        db.query(sql2, params, (err, result) => {
+          if (err) {
+            console.log({ error: err.message });
+            return;
+          }
+        });
+      })
+      .then( () => {
+        console.log('deleted employee in db')
+        this.run();
+      })
+    });
+  }
+
+  // View department budget
+  viewDepartmentBudget() {
+    const sql = `SELECT department_name as department from department ORDER BY id`;
+    let departmentArray = []
+    // Creates an array of departments found in the department table
+    db.query(sql, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        departmentArray.push(rows[i].department)
+      }
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'department',
+          message: 'Choose department: ',
+          choices: departmentArray,
+        },
+      ])
+      .then (input => {
+        const sql2 = `SELECT SUM(role.salary), department.department_name as department from employee
+        INNER JOIN role on employee.role_id = role.id
+        INNER JOIN department ON role.department_id = department.id
+        WHERE department.id = ?`
+        let d_id = departmentArray.indexOf(input.department) + 1;
+        const params = d_id;
+        db.query(sql2, params, (err, result) => {
+          if (err) {
+            console.log({ error: err.message });
+            return;
+          }
+          console.table(result)
+        });
+      })
+      .then( () => {
+        console.log('deleted department in db')
+        this.run();
+      })
+    });
+  }
+
   // Promts Users what they would like to do within the databse
   promptUser() {
     return inquirer.
@@ -335,8 +586,9 @@ class CLI {
         type: 'list',
         name: 'result',
         message: 'What would you like to do:',
-        choices: ['View all Departments', 'View all Roles', 'View all Employees',
-      'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee', 'Quit'],
+        choices: ['View all Departments', 'View Department Budget', 'View all Roles', 'View all Employees','View Employees by Manager',
+        'View Employees by Department', 'Add a Department', 'Add a Role', 'Add an Employee', 
+        'Update an Employee', 'Delete Department', 'Delete Role', 'Delete Employee', 'Quit'],
       },
     ])
   }
