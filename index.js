@@ -7,13 +7,12 @@ const db = mysql.createConnection(
   {
     host: 'localhost',
     user: 'root',
-    password: '101894JefO!',
+    password: 'password',
     database: 'department_db'
   },
   console.log(`Connected to the department_db database.`)
 );
 
-let testarray = ['test1', 'test2', 'test3'];
 class CLI {
   constructor() {
   }
@@ -48,19 +47,15 @@ class CLI {
   }
 
   viewDepartments() {
-    console.log('department')
-    const sql = `SELECT id, department_name AS department FROM department`;
+    const sql = `SELECT id, department_name from department ORDER BY id`;
     db.query(sql, (err, rows) => {
       if (err) {
-        res.status(500).json({ error: err.message });
+        console.log({ error: err.message });
         return;
       }
-      res.json({
-        message: 'success',
-        data: rows
-      });
+      console.log(rows)
+      this.run();
     });
-    this.run();
   }
 
   addDepartment() {
@@ -72,19 +67,14 @@ class CLI {
       },
     ])
     .then(input => {
-      console.log(input)
-      const sql = `INSERT INTO department (department_name)
+    const sql = `INSERT INTO department (department_name)
     VALUES (?)`;
     const params = input.name;
     db.query(sql, params, (err, result) => {
       if (err) {
-        res.status(400).json({ error: err.message });
+        console.log({ error: err.message });
         return;
       }
-      res.json({
-        message: 'success',
-        data: result
-      });
     });
     })
     .then( () => {
@@ -94,26 +84,34 @@ class CLI {
   }
 
   viewRoles() {
-    console.log('role')
-    const sql = `SELECT id, title, salary, department_id FROM role`;
+    const sql = `SELECT role.id, title, salary, department.department_name as department from role
+    INNER JOIN department ON role.department_id = department.id ORDER BY id`;
     db.query(sql, (err, rows) => {
       if (err) {
-        res.status(500).json({ error: err.message });
+        console.log({ error: err.message });
         return;
       }
-      res.json({
-        message: 'success',
-        data: rows
-      });
+      console.log(rows)
+      this.run();
     });
-    this.run();
   }
 
   addRole() {
+    const sql = `SELECT department_name as department from department ORDER BY id`;
+    let departmentArray = []
+    db.query(sql, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        departmentArray.push(rows[i].department)
+      }
+    });
     inquirer.prompt([
       {
         type: 'input',
-        name: 'role',
+        name: 'title',
         message: 'Role Name: ',
       },
       {
@@ -125,11 +123,20 @@ class CLI {
         type: 'list',
         name: 'department',
         message: 'Choose department: ',
-        choices: testarray,
+        choices: departmentArray,
       },
     ])
     .then(input => {
-      console.log(input)
+      const sql2 = `INSERT INTO role (title, salary, department_id)
+      VALUES (?, ?, ?)`;
+      let d_id = departmentArray.indexOf(input.department) + 1;
+      const params = [input.title, input.salary, d_id];
+      db.query(sql2, params, (err, result) => {
+        if (err) {
+          console.log({ error: err.message });
+          return;
+        }
+      });
     })
     .then( () => {
       console.log('added role to db')
@@ -138,22 +145,44 @@ class CLI {
   }
 
   viewEmployees() {
-    console.log('employee');
-    const sql = `SELECT id, first_name, last_name, role_id, manager_id FROM employee`;
+    const sql = `SELECT employee.id, first_name, last_name , role.title, department.department_name as department, manager_id from employee
+    INNER JOIN role on employee.role_id = role.id
+    INNER JOIN department ON role.department_id = department.id ORDER BY id`;
     db.query(sql, (err, rows) => {
       if (err) {
-        res.status(500).json({ error: err.message });
+        console.log({ error: err.message });
         return;
       }
-      res.json({
-        message: 'success',
-        data: rows
-      });
+      console.log(rows);
+      this.run();
     });
-    this.run();
   }
 
   addEmplyoee() {
+    const sql = `SELECT title from role ORDER BY id`;
+    const sql2 = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`
+    let roleArray = [];
+    let managerArray = [];
+    db.query(sql, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        roleArray.push(rows[i].title)
+      }
+    });
+    db.query(sql2, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        managerArray.push(rows[i].name)
+      }
+      managerArray.push('null')
+    });
+
     inquirer.prompt([
       {
         type: 'input',
@@ -169,17 +198,32 @@ class CLI {
         type: 'list',
         name: 'role',
         message: 'Choose Role: ',
-        choices: testarray,
+        choices: roleArray,
       },
       {
         type: 'list',
         name: 'manager',
         message: 'Choose Manager: ',
-        choices: testarray,
+        choices: managerArray,
       },
     ])
     .then(input => {
-      console.log(input)
+      const sql3 = `INSERT INTO employee (role_id, first_name, last_name, manager_id)
+      VALUES (?, ?, ?, ?)`;
+      let r_id = roleArray.indexOf(input.role) + 1;
+      let m_id;
+      if (input.manager === 'null') {
+        m_id = null;
+      } else {
+        m_id = managerArray.indexOf(input.manager) + 1;
+      }
+      const params = [r_id, input.first_name, input.last_name, m_id];
+      db.query(sql3, params, (err, result) => {
+        if (err) {
+          console.log({ error: err.message });
+          return;
+        }
+      });
     })
     .then( () => {
       console.log('added employee to db')
@@ -188,33 +232,84 @@ class CLI {
   }
 
   updateEmployee() {
-    inquirer.prompt([
-      {
-        type: 'list',
-        name: 'employee',
-        message: 'Choose Employee: ',
-        choices: testarray,
-      },
-      {
-        type: 'list',
-        name: 'role',
-        message: 'Choose Role: ',
-        choices: testarray,      
-      },
-      {
-        type: 'list',
-        name: 'manager',
-        message: 'Choose Manager: ',
-        choices: testarray,
-      },
-    ])
-    .then(input => {
-      console.log(input)
+    const sql = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`;
+    const sql2 = `SELECT title from role ORDER BY id`;
+    const sql3 = `SELECT concat(first_name, ' ', last_name) as name from employee ORDER BY id`;
+    let employeeArray = []
+    let roleArray = [];
+    let managerArray = [];
+    db.query(sql, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        employeeArray.push(rows[i].name)
+      }
     })
-    .then( () => {
-      console.log('Updated employee to db')
-      this.run();
-    })
+    db.query(sql2, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        roleArray.push(rows[i].title)
+      }
+    });
+    db.query(sql3, (err, rows) => {
+      if (err) {
+        console.log({ error: err.message });
+        return;
+      }
+      for(let i = 0; i < rows.length; i++){
+        managerArray.push(rows[i].name)
+      }
+      managerArray.push('null');
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'employee',
+          message: 'Choose Employee: ',
+          choices: employeeArray,
+        },
+        {
+          type: 'list',
+          name: 'role',
+          message: 'Choose Role: ',
+          choices: roleArray,      
+        },
+        {
+          type: 'list',
+          name: 'manager',
+          message: 'Choose Manager: ',
+          choices: managerArray,
+        },
+      ])
+      .then(input => {
+        const sql4 = ` UPDATE employee
+        SET role_id = ?, manager_id = ?
+        WHERE employee.id = ?;`
+        let r_id = roleArray.indexOf(input.role) + 1;
+        let m_id;
+        if (input.manager === 'null') {
+          m_id = null;
+        } else {
+          m_id = managerArray.indexOf(input.manager) + 1;
+        }
+        let e_id = employeeArray.indexOf(input.employee) + 1;
+        const params = [r_id, m_id, e_id];
+        db.query(sql4, params, (err, result) => {
+          if (err) {
+            console.log({ error: err.message });
+            return;
+          }
+        });
+      })
+      .then( () => {
+        console.log('Updated employee to db')
+        this.run();
+      })
+    });
   }
 
   promptUser() {
@@ -227,7 +322,6 @@ class CLI {
         choices: ['View all Departments', 'View all Roles', 'View all Employees',
       'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee', 'Quit'],
       },
-
     ])
   }
 }
