@@ -4,9 +4,11 @@
 
 This is the Module 12 Challenge for the boot camp. The code was made from scratch allowing the user to edit the given database by adding, updating and deleting departments, roles and employees. The user will be given a list of promts which will give the user a output depending on what they have chosen.
 
-Link to Video:
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Link to Video: https://www.awesomescreenshot.com/video/17878799?key=f8a5dc191fdb4a48c82afef82632875d
+
+https://github.com/jef1197/SQL-Department-Employee-Database/assets/48005017/bc615e10-b1cd-433a-90e0-139f0546c057
 
 ## Usage
 
